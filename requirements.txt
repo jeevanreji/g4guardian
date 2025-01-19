@@ -6,3 +6,4 @@ pymysql
 flask-cors
 flask-bcrypt
 apscheduler
+flask_mail

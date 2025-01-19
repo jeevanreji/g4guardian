@@ -50,7 +50,7 @@
         form {
             margin-top: 30px;
         }
-        input[type="number"] {
+        input[type="number"], input[type="text"] {
             padding: 8px;
             margin: 10px 0;
             width: 100%;
@@ -76,6 +76,25 @@
         .back-btn:hover {
             background-color: #e67e22;
         }
+        /* Flash messages styles */
+        .flash-message {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .flash-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .flash-error {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .flash-warning {
+            background-color: #f39c12;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -99,10 +118,27 @@
     <div class="content-container">
         <h1>Set Your Energy Demand</h1>
 
+        <!-- Display flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div>
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% endwith %}
+
         <!-- Energy Demand Form -->
         <form action="{{ url_for('energy_routes.set_energy_demand', user_id=session['user_id']) }}" method="POST">
             <label for="energy_demand">Energy Demand (kWh per minute):</label><br>
             <input type="number" id="energy_demand" name="energy_demand" step="0.01" required><br><br>
+
+            <label for="device_type">Device Type (e.g., Refrigerator, Air Conditioner):</label><br>
+            <input type="text" id="device_type" name="device_type" required><br><br>
+
             <button type="submit">Set Energy Demand</button>
         </form>
     </div>
