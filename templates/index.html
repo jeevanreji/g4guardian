@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to SegMaster</title>
+    
+    <!-- Include Google Font for better styling -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Open+Sans:wght@300;400&display=swap" rel="stylesheet">
+    
+    <!-- Include Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Styles -->
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f4f8;
+            color: #333;
+        }
+        
+        h1, h2, h3 {
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header Navigation Bar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #34495e;
+            padding: 15px 30px;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 15px;
+            font-size: 16px;
+            font-weight: 500;
+            margin: 0 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar a:hover {
+            background-color: #1abc9c;
+        }
+
+        .navbar .logo {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(to right, #1abc9c, #3498db);
+            padding: 100px 30px;
+            color: white;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+
+        .hero h1 {
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            margin-bottom: 25px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .cta-buttons a {
+            background-color: #34495e;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 50px;
+            color: white;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .cta-buttons a:hover {
+            background-color: #2c3e50;
+        }
+
+        /* Footer Section */
+        .footer {
+            background-color: #34495e;
+            padding: 20px 0;
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+        }
+
+        .footer p {
+            font-size: 14px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .navbar .logo {
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .cta-buttons a {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <div class="logo">SegMaster</div>
+        <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">About</a>
+            <a href="#">Services</a>
+            <a href="#">Contact</a>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="container">
+            <h1>Welcome to SegMaster</h1>
+            <p>Your ultimate solution for segmenting complex data seamlessly. Let's get started with our powerful platform to explore more insights!</p>
+            <div class="cta-buttons">
+                <a href="{{ url_for('user_routes.register') }}">Create New User</a>
+                <a href="{{ url_for('user_routes.login') }}">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <div class="footer">
+        <p>&copy; 2025 SegMaster | All rights reserved.</p>
+    </div>
+
+</body>
+</html>

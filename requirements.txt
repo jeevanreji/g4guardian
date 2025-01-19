@@ -1,0 +1,8 @@
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+redis
+pymysql
+flask-cors
+flask-bcrypt
+apscheduler

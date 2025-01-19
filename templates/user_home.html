@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar {
+            background-color: #34495e;
+            padding: 10px;
+            text-align: center;
+            color: white;
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .tabs a, .tabs button {
+            padding: 10px 20px;
+            margin: 0 15px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        .tabs a:hover, .tabs button:hover {
+            background-color: #2980b9;
+        }
+        .content-container {
+            padding: 30px;
+            margin: 20px auto;
+            max-width: 1000px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Flex container for the charts */
+        .chart-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-box {
+            width: 48%;
+            max-width: 48%;
+            text-align: center;
+        }
+
+        canvas {
+            margin-top: 20px;
+            display: block;
+            width: 100%;
+        }
+
+        /* Meter style */
+        .meter-container {
+            text-align: left;
+            margin: 80px 0;
+            text-align: center;
+        }
+
+        .meter {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            background-color: #ecf0f1;
+            border-radius: 50%;
+            border: 10px solid #3498db;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+        }
+
+        .meter .meter-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: conic-gradient(#e74c3c 0%, #f39c12 50%, #2ecc71 100%);
+            border-radius: 50%;
+            clip-path: circle(50% at 50% 50%);
+            transform-origin: center;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .meter .cost {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            color: #333;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h2>User Dashboard</h2>
+    </div>
+
+    <div class="tabs">
+        <!-- Using a button instead of an anchor link -->
+        <form action="{{ url_for('energy_routes.set_energy_demand', user_id=session['user_id']) }}" method="get">
+            <button type="submit">Set Energy Demand</button>
+        </form>
+        <form action="{{ url_for('energy_routes.upload_energy', user_id=session['user_id']) }}" method="get">
+            <button type="submit">Upload Energy</button>
+        </form>
+
+        <!-- Logout button -->
+        <form action="{{ url_for('user_routes.logout') }}" method="post">
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+
+    <div class="content-container">
+        {% if content == 'set_energy_demand' %}
+        <h3>Set Energy Demand</h3>
+        <form method="POST" action="{{ url_for('energy_routes.set_energy_demand', user_id=user.id) }}">
+            <label for="energy_demand">Energy Demand (kWh per minute):</label><br>
+            <input type="number" id="energy_demand" name="energy_demand" step="0.01" required><br><br>
+            <button type="submit">Submit</button>
+        </form>
+
+        {% elif content == 'upload_energy' %}
+        <h3>Upload Energy</h3>
+        <form id="upload-energy-form" action="{{ url_for('energy_routes.upload_energy', user_id=user.id) }}" method="post">
+            <label for="energy">Energy (kWh):</label>
+            <input type="number" id="energy" name="energy" min="0" required>
+            <button type="submit">Upload</button>
+        </form>
+        
+        {% else %}
+        <p>Welcome to your dashboard. Use the navigation links above to manage your energy demands.</p>
+        <!-- Energy charts -->
+        <div class="chart-container">
+            <!-- Energy Chart -->
+            <div class="chart-box">
+                <h4>Energy Consumption vs. Production</h4>
+                <canvas id="energyChart"></canvas>
+            </div>
+
+            <!-- Meter / Cost Chart -->
+            <div class="chart-box">
+                <h4>Amount to Pay</h4>
+                <div class="meter-container">
+                    <div class="meter">
+                        <div id="meterFill" class="meter-fill"></div>
+                        <div id="costAmount" class="cost">$0.00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Energy Credit Score Meter -->
+        <div class="meter-container">
+            <div class="meter">
+                <div id="creditScoreFill" class="meter-fill"></div>
+                <div id="creditScore" class="cost">Score: 300</div>
+            </div>
+            <p>Energy Credit Score</p>
+        </div>
+
+        <script>
+            // Define price constants
+            const P_consumed = 0.15;
+            const P_uploaded = 0.10;
+
+            // Get user data from Flask (assuming values are passed via Jinja)
+            const energyConsumed = {{ user.energy_consumed | int }};
+            const energyReleased = {{ user.energy_released | int }};
+            
+            // Calculate cost for energy
+            const cost = (P_consumed * energyConsumed) - (P_uploaded * energyReleased);
+            document.getElementById("costAmount").innerText = `$${cost.toFixed(2)}`;
+            let maxCost = 100; // Set max cost for meter (you can adjust this)
+            let percentage = Math.min((cost / maxCost) * 100, 100); // Limit the percentage to 100%
+            document.getElementById("meterFill").style.transform = `rotate(${(percentage * 3.6)}deg)`;
+
+            // Function to calculate the energy credit score
+            function calculateCreditScore(consumed, released) {
+                if (consumed === 0) return 300;  // If no consumption, score is 300
+                let ratio = (released / consumed) * 100;
+                let creditScore = 300 + (ratio * 4.29);  // Linear scaling
+                let penalty = consumed / 5000;  // Penalty for high consumption
+                creditScore -= penalty;
+                return Math.max(creditScore, 0);  // Ensure it doesn't fall below 0
+            }
+            const creditScore = calculateCreditScore(energyConsumed, energyReleased);
+            document.getElementById("creditScore").innerText = `Score: ${creditScore.toFixed(0)}`;
+            document.getElementById("creditScoreFill").style.transform = `rotate(${(creditScore / 600) * 360}deg)`;
+
+            // Create energy chart
+            const energyData = {
+                labels: ['Energy Consumed', 'Energy Uploaded'],
+                datasets: [{
+                    label: 'Energy in kWh',
+                    data: [energyConsumed, energyReleased],
+                    backgroundColor: ['#3498db', '#2ecc71'],
+                    borderColor: ['#2980b9', '#27ae60'],
+                    borderWidth: 1
+                }]
+            };
+
+            const ctx = document.getElementById('energyChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: energyData,
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        </script>
+        {% endif %}
+    </div>
+
+</body>
+</html>
