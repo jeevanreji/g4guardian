@@ -89,6 +89,7 @@ def set_energy_demand(user_id):
                                  f"Energy demand alert: Device '{device_type}' provisioning large energy demand", 
                                  f"Dear {user.username},\n\nYour device '{device_type}' is provisioning a lot of energy. Please consider removing it.")
                 flash('Energy request exceeds forecasted value. Email alert sent!', 'danger')
+                return redirect(url_for('energy_routes.set_energy_demand', user_id=user_id))
 
             # Frequency Check: If no. of requests > 10 and time between transactions < 15 mins
             time_difference = datetime.utcnow() - device.last_request_timestamp if device else timedelta(minutes=0)
